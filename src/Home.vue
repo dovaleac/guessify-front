@@ -1,28 +1,30 @@
 <template>
-  <div class="form"> 
-    <div class="horizontal-split">
-      <label for="player-name">Name: </label>
-      <input id="player-name" v-model="playerName" placeholder="Player name">
-    </div>
-    <div class="horizontal-split">
-      <label for="lang">Language: </label>
-      <select v-model="lang" id="lang">
-        <option selected="selected">ES</option>
-        <option>EN</option>
-      </select>
-    </div>
-    <div class="horizontal-split">
-      <label for="room-id">Room id: </label>
-      <input id="room-id" v-model="roomNumber" placeholder="Type an id for the room">
-    </div>
-    <div class="horizontal-split">
-      <label for="room-password">Password: </label>
-      <input id="room-password" v-model="roomPassword" placeholder="Type a password for the room">
-    </div>
-    <div class="horizontal-split">
-      <button class="button" v-on:click="createRoom">Create</button>
-      <button class="button" v-on:click="joinRoom">Join</button>
-    </div>
+  <div class="form">
+    <b-container>
+      <b-row>
+        <b-col><label for="player-name">Name: </label></b-col>
+        <b-col><input id="player-name" v-model="playerName" placeholder="Player name"></b-col>
+      </b-row>
+      <b-row>
+        <b-col><label for="lang">Language: </label></b-col>
+        <b-col><select v-model="lang" id="lang">
+          <option selected="selected">ES</option>
+          <option>EN</option>
+        </select></b-col>
+      </b-row>
+      <b-row>
+        <b-col><label for="room-id">Room id: </label></b-col>
+        <b-col><input id="room-id" v-model="roomNumber" placeholder="Type an id for the room"></b-col>
+      </b-row>
+      <b-row>
+        <b-col><label for="room-password">Password: </label></b-col>
+        <b-col><input id="room-password" v-model="roomPassword" placeholder="Type a password for the room"></b-col>
+      </b-row>
+      <b-row>
+        <b-col><button class="button" v-on:click="createRoom">Create</button></b-col>
+        <b-col><button class="button" v-on:click="joinRoom">Join</button></b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
 
