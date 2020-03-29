@@ -44,13 +44,15 @@ export default {
   },
   methods: {
     createRoom() {
+      console.log(this.$route);
       axios
       .post(`http://localhost:8080/room?number=${this.roomNumber}&password=${this.roomPassword}`)
       .then(roomResponse => {
         let roomId = roomResponse.data.roomId;
         axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
         .then(masterPlayerResponse => {
-          console.log(masterPlayerResponse);
+          localStorage.player = masterPlayerResponse.data;
+          this.$router.push('/config');
         });
       });
 
@@ -63,12 +65,4 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>

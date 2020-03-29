@@ -1,9 +1,10 @@
-import Vue from 'vue'
-import Home from './Home.vue'
+/* import Vue from 'vue'
+import App from './App.vue'
 import './registerServiceWorker'
 import { BootstrapVue, LayoutPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import router from 'vue-router'
 
 Vue.use(BootstrapVue)
 Vue.use(LayoutPlugin)
@@ -11,5 +12,29 @@ Vue.use(LayoutPlugin)
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(Home),
-}).$mount('#Home')
+  el: '#app',
+  router,
+  components: { App },
+  template: '<App/>'
+})
+ */
+
+import Vue from 'vue'
+import App from './App'
+import router from './router'
+import { BootstrapVue, LayoutPlugin } from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+Vue.use(BootstrapVue)
+Vue.use(LayoutPlugin)
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  components: { App },
+  template: '<App/>',
+  render: h => h(App)
+})
