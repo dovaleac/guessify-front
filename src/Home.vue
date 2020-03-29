@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
   name: 'Home',
@@ -43,7 +44,16 @@ export default {
   },
   methods: {
     createRoom() {
-      alert("create room: " + this.playerName + this.lang + this.roomNumber + this.roomPassword);
+      axios
+      .post(`http://localhost:8080/room?number=${this.roomNumber}&password=${this.roomPassword}`)
+      .then(roomResponse => {
+        let roomId = roomResponse.data.roomId;
+        axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
+        .then(masterPlayerResponse => {
+          console.log(masterPlayerResponse);
+        });
+      });
+
     },
     joinRoom() {
       alert("join room: " + this.playerName + this.lang + this.roomNumber + this.roomPassword);
