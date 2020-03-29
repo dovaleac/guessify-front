@@ -1,19 +1,19 @@
 <template>
   <div class="form">
-    <b-container>
+    <b-container class ="d-flex flex-column">
       <b-row>
         <b-col><label for="total-rounds">Total rounds: </label></b-col>
-        <b-col><input id="total-rounds" v-model="totalRounds"></b-col>
+        <b-col><input class="small-textbox" id="total-rounds" v-model="totalRounds"></b-col>
       </b-row>
       <b-row>
         <b-col><label for="clues-per-question">Clues per question: </label></b-col>
-        <b-col><input id="clues-per-question" v-model="CluesPerQuestion"></b-col>
+        <b-col><input class="small-textbox" id="clues-per-question" v-model="CluesPerQuestion"></b-col>
       </b-row>
       <b-row>
         <b-col><label for="errors-allowed">Errors allowed: </label></b-col>
-        <b-col><input id="errors-allowed" v-model="errorsAllowed" placeholder="Type a password for the room"></b-col>
+        <b-col><input class="small-textbox" id="errors-allowed" v-model="errorsAllowed"></b-col>
       </b-row>
-      <b-row>
+      <b-row class="mt-auto">
         <b-col><button class="button" v-on:click="configScoring">Config scoring</button></b-col>
         <b-col><button class="button" v-on:click="loadQuestions">Load questions</button></b-col>
       </b-row>

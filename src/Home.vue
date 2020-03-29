@@ -1,6 +1,6 @@
 <template>
   <div class="form">
-    <b-container>
+    <b-container class ="d-flex flex-column">
       <b-row>
         <b-col><label for="player-name">Name: </label></b-col>
         <b-col><input id="player-name" v-model="playerName" placeholder="Player name"></b-col>
@@ -20,7 +20,7 @@
         <b-col><label for="room-password">Password: </label></b-col>
         <b-col><input id="room-password" v-model="roomPassword" placeholder="Type a password for the room"></b-col>
       </b-row>
-      <b-row>
+      <b-row class="mt-auto">
         <b-col><button class="button" v-on:click="createRoom">Create</button></b-col>
         <b-col><button class="button" v-on:click="joinRoom">Join</button></b-col>
       </b-row>

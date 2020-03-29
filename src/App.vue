@@ -34,19 +34,28 @@ export default {
   margin-top: 50vh;
   font-size: 1.5em;
 }
+
 .form .container{
   padding-top: 5%;
   padding-bottom: 5%;
+  height: 100%;
 }
+
 .form .row {
   padding-bottom: 2vh;
 }
+
 .form label {
   float: left;
   margin-left: 20%;
 }
+
 .form select, input, button {
   width: 70%;
 }
 
+.form input.small-textbox {
+  width: 40px;
+  text-align: center;
+}
 </style>
