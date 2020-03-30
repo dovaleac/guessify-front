@@ -18,12 +18,14 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  background-color: royalblue;
+  background-image: url('./assets/brain.svg');
   position: fixed;
   top: 0;
   bottom: 0;
   right: 0;
+  background-size: 8vw;
   left: 0;
+  background-position-y: 45%;
 }
 .form {
   background-color: aliceblue;
@@ -33,6 +35,8 @@ export default {
   height: 50vh;
   margin-top: 50vh;
   font-size: 1.5em;
+  color: royalblue;
+  border: 0.2vw solid royalblue;
 }
 
 .form .container{
@@ -57,5 +61,21 @@ export default {
 .form input.small-textbox {
   width: 40px;
   text-align: center;
+}
+
+.form input {
+  border-color: royalblue;
+}
+
+button {
+  border: none;
+  background-color: royalblue;
+  color: aliceblue;
+  font-weight: bold;
+} 
+
+button:hover {
+  background-color: rgb(207, 219, 255);
+  color: rgb(44, 88, 223);
 }
 </style>

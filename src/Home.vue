@@ -37,7 +37,10 @@ export default {
     this.lang = "ES"
   },
   props: {
-    playerName: String,
+    playerName: {
+      type: String,
+      default: JSON.parse(localStorage.getItem('player')).name
+    },
     lang: String,
     roomNumber: String,
     roomPassword: String
@@ -51,7 +54,7 @@ export default {
         let roomId = roomResponse.data.roomId;
         axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
         .then(masterPlayerResponse => {
-          localStorage.player = masterPlayerResponse.data;
+          localStorage.setItem('player', JSON.stringify(masterPlayerResponse.data));
           this.$router.push('/config');
         });
       });
