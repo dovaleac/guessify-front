@@ -54,7 +54,7 @@ export default {
   margin-left: 20%;
 }
 
-.form select, input, button {
+.form select, input, .button {
   width: 70%;
 }
 
@@ -67,15 +67,21 @@ export default {
   border-color: royalblue;
 }
 
-button {
+.button {
   border: none;
   background-color: royalblue;
   color: aliceblue;
   font-weight: bold;
 } 
+.button.inactive {
+  background-color: rgb(207, 219, 255);
+  color: rgb(44, 88, 223);
+  pointer-events: none;
+} 
 
-button:hover {
+.button:hover {
   background-color: rgb(207, 219, 255);
   color: rgb(44, 88, 223);
 }
+
 </style>

@@ -22,21 +22,20 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 let defaultProperties = JSON.parse(localStorage.getItem('gameConfig'));
 
 if(!defaultProperties) {
   defaultProperties = {
     totalRounds: 8,
     cluesPerQuestion: 5,
-    errorsAllowed: 5
+    errorsAllowed: 1
   }
 }
 
 export default {
-  name: 'Home',
-  created() {
-    this.lang = "ES"
-  },
+  name: 'ConfigGame',
   props: {
     totalRounds: {
       type: Number,
@@ -59,11 +58,31 @@ export default {
         "errorsAllowed": this.errorsAllowed        
       }));
       this.$router.push('/scoring');
-
-
     },
     loadQuestions() {
-      alert("join room: " + this.totalRounds + this.lang + this.cluesPerQuestion + this.errorsAllowed);
+      localStorage.setItem('gameConfig', JSON.stringify({
+        "totalRounds": this.totalRounds,
+        "cluesPerQuestion": this.cluesPerQuestion,
+        "errorsAllowed": this.errorsAllowed        
+      }));
+
+      /*private int totalRounds;
+  private int cluesPerQuestion;
+  private int errorsAllowedPerQuestion;
+  private Scoring scoring;*/
+
+      const roomId = JSON.parse(localStorage.getItem("room")).id
+      const playerId = JSON.parse(localStorage.getItem("player")).id
+      const lang = localStorage.getItem("lang").toLowerCase()
+      axios.post(`http://localhost:8080/game?roomId=${roomId}&masterId=${playerId}&lang=${lang}`, {
+        "totalRounds": this.totalRounds,
+        "cluesPerQuestion": this.cluesPerQuestion,
+        "errorsAllowed": this.errorsAllowed
+      }).then(gameResponse => { 
+        localStorage.setItem("gameId", gameResponse.data.gameId)
+        this.$router.push('/questions');
+      });
+
     }
   }
 }
