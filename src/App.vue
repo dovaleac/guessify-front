@@ -84,4 +84,17 @@ export default {
   color: rgb(44, 88, 223);
 }
 
+.inputfile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.inputfile + label {
+	cursor: pointer;
+}
+
 </style>
