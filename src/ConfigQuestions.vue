@@ -34,7 +34,7 @@ methods: {
     finishUpload(e) {
       if(e.target.status === 200) {
         localStorage.setItem("questions", e.target.response)
-        this.$router.push('/game')
+        this.$router.push('/before-start')
       }
     },
 

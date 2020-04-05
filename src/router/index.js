@@ -4,6 +4,7 @@ import Home from '../Home.vue'
 import ConfigGame from '../ConfigGame.vue'
 import ConfigQuestions from '../ConfigQuestions.vue'
 import Game from '../Game.vue'
+import BeforeStart from '../BeforeStart.vue'
 
 
 Vue.use(Router)
@@ -24,6 +25,11 @@ export default new Router({
       path: '/questions',
       name: 'configQuestions',
       component: ConfigQuestions
+    },
+    {
+      path: '/before-start',
+      name: 'beforeStart',
+      component: BeforeStart
     },
     {
       path: '/game',

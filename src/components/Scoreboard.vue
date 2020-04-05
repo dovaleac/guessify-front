@@ -6,10 +6,10 @@
         <b-col>Points</b-col>
         <b-col>Questions guessed</b-col>
       </b-row>
-      <b-row v-for="(player, id, points, guessed) in scoreboard" :key="id">
-        <b-col>{{ player }}</b-col>
-        <b-col>{{ points }}</b-col>
-        <b-col>{{ guessed }}</b-col>
+      <b-row v-for="player in scoreboard" :key="player.id">
+        <b-col>{{ player.name }}</b-col>
+        <b-col>{{ player.points }}</b-col>
+        <b-col>{{ player.guessed }}</b-col>
       </b-row>
     </b-container>
   </div>
@@ -17,9 +17,9 @@
 
 <script>
 export default {
-  name: 'HelloWorld',
+  name: 'Scoreboard',
   props: {
-    scoreboard: Object
+    scoreboard: Array
   }
 }
 </script>

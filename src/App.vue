@@ -38,6 +38,24 @@ export default {
   color: royalblue;
   border: 0.2vw solid royalblue;
 }
+.form.questions {
+  width: 70vw;
+  margin-left: 0;
+  transform: none;
+  height: 75vh;
+  margin-top: 0;
+}
+
+.scoreboard .form {
+  font-size: 1.2em;
+  width: 30vw;
+  height: 50vh;
+  transform: none;
+  margin-top: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+}
 
 .form .container{
   padding-top: 5%;
