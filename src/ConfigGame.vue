@@ -66,11 +66,6 @@ export default {
         "errorsAllowed": this.errorsAllowed        
       }));
 
-      /*private int totalRounds;
-  private int cluesPerQuestion;
-  private int errorsAllowedPerQuestion;
-  private Scoring scoring;*/
-
       const roomId = JSON.parse(localStorage.getItem("room")).id
       const playerId = JSON.parse(localStorage.getItem("player")).id
       const lang = localStorage.getItem("lang").toLowerCase()
