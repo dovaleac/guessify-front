@@ -1,14 +1,14 @@
 <template>
 <div class="wholeScreen">
   <div class="form questions">
-    <b-container class ="d-flex flex-column">
+    <b-container class = "d-flex flex-column">
       <!-- <b-row class="header">
         <b-col><label>Players: </label></b-col>
       </b-row> -->
       <b-row v-for="(clue, index) in currentQuestion.clues" :key="index">
         <b-col>Clue {{index + 1}}:</b-col><b-col>{{ index>currentQuestion.currentClue?'':clue }}</b-col> 
       </b-row>
-      <b-row class="mt-auto">
+      <b-row v-if="isMaster" class="mt-auto">
         <b-col></b-col>
         <b-col><button class="button" v-on:click="revealClue">Reveal clue</button></b-col>
       </b-row>
@@ -54,19 +54,22 @@ export default {
     getDynamicInfo() {
       return axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`)
     },
+    putRevealClue(questionInGameId, nextClue) {
+      return axios.put(`http://localhost:8080/question/${questionInGameId}/clue?nextClue=${nextClue}`)
+    },
     processDynamicInfo() {
       this.getDynamicInfo().then(dynamicInfo => {
         this.gameStatus = dynamicInfo.data.gameStatus
         this.allQuestionsInGame = dynamicInfo.data.questionsInGame
-        console.log(this.allQuestionsInGame)
         const currentQuestionInGame = _.find(this.allQuestionsInGame, function(o) { return o.status === 'ACTIVE' })
-        console.log(currentQuestionInGame)
         let currentQuestion = _.find(questions, function(o) { return o.id === currentQuestionInGame.questionId })
         currentQuestion.currentClue = currentQuestionInGame.currentClue
+        currentQuestion.questionInGameId = currentQuestionInGame.id
         this.currentQuestion = currentQuestion
       })
     },
-    revealClue() {
+    async revealClue() {
+      await this.putRevealClue(this.currentQuestion.questionInGameId, ++this.currentQuestion.currentClue)
     },
     initialScoreboard(playersNames) {
       return _.map(playersNames, function(player) {
