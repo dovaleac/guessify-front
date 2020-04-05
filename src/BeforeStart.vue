@@ -40,9 +40,8 @@ export default {
       const self = this;   
       this.getCurrentPlayers().then(playersResponse => {
         localStorage.setItem("players", JSON.stringify(playersResponse.data))
-        axios.get(`http://localhost:8080/game/${gameId}/status`).then(response => {
-          console.log(response)
-          if(response.data != "CREATED") {
+        axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`).then(response => {
+          if(response.data.gameStatus != "CREATED") {
             this.$router.push('/game')
           }
         })

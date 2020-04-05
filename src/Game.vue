@@ -1,18 +1,18 @@
 <template>
 <div class="wholeScreen">
   <div class="form questions">
-    <!-- <b-container class ="d-flex flex-column">
-      <b-row class="header">
+    <b-container class ="d-flex flex-column">
+      <!-- <b-row class="header">
         <b-col><label>Players: </label></b-col>
-      </b-row>
-      <b-row v-for="player in players" :key="player.id">
-        <b-col>{{ player.name }}</b-col> 
+      </b-row> -->
+      <b-row v-for="(clue, index) in currentQuestion.clues" :key="index">
+        <b-col>Clue {{index + 1}}:</b-col><b-col>{{ index>currentQuestion.currentClue?'':clue }}</b-col> 
       </b-row>
       <b-row class="mt-auto">
         <b-col></b-col>
-        <b-col><button class="button" v-on:click="start">Start game</button></b-col>
+        <b-col><button class="button" v-on:click="revealClue">Reveal clue</button></b-col>
       </b-row>
-    </b-container> -->
+    </b-container>
   </div>
   <div class="scoreboard">
     <scoreboard v-bind:scoreboard="scoreboard"/>
@@ -29,29 +29,44 @@ const _ = require('lodash')
   let gameConfig = JSON.parse(localStorage.getItem("gameConfig"))
   //let room = JSON.parse(localStorage.getItem("room"))
   let players = JSON.parse(localStorage.getItem("players"))
-  //let defaultPlayer = JSON.parse(localStorage.getItem("player"))
+  let player = JSON.parse(localStorage.getItem("player"))
   let gameId = localStorage.getItem("gameId")
   //let defaultLang = localStorage.getItem("lang")
-
-  if(!questions || !gameConfig) {
-    const staticInfo = this.getStaticInfo()
-    questions = staticInfo.data.questions
-    gameConfig = staticInfo.data.gameConfiguration
-  }
 
 export default {
   name: 'Game',
   data() {
     return {
-      scoreboard: this.initialScoreboard(players)
+      scoreboard: this.initialScoreboard(players),
+      isMaster: player.playerRole === 'MASTER',
+      currentQuestion: null,
+      gameStatus: 'STARTED',
+      allQuestionsInGame: null
     }
   },
   components: {
     'scoreboard': Scoreboard
   },
   methods: {
-    async getStaticInfo() {
-      return await axios.get(`http://localhost:8080/game/${gameId}/static-info`)
+    getStaticInfo() {
+      return axios.get(`http://localhost:8080/game/${gameId}/static-info`)
+    },
+    getDynamicInfo() {
+      return axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`)
+    },
+    processDynamicInfo() {
+      this.getDynamicInfo().then(dynamicInfo => {
+        this.gameStatus = dynamicInfo.data.gameStatus
+        this.allQuestionsInGame = dynamicInfo.data.questionsInGame
+        console.log(this.allQuestionsInGame)
+        const currentQuestionInGame = _.find(this.allQuestionsInGame, function(o) { return o.status === 'ACTIVE' })
+        console.log(currentQuestionInGame)
+        let currentQuestion = _.find(questions, function(o) { return o.id === currentQuestionInGame.questionId })
+        currentQuestion.currentClue = currentQuestionInGame.currentClue
+        this.currentQuestion = currentQuestion
+      })
+    },
+    revealClue() {
     },
     initialScoreboard(playersNames) {
       return _.map(playersNames, function(player) {
@@ -68,7 +83,15 @@ export default {
     
   },
   created () {
-    
+    if(!questions || !gameConfig) {
+      this.getStaticInfo().then(staticInfo => {
+        questions = staticInfo.data.questions
+        gameConfig = staticInfo.data.gameConfiguration
+        this.processDynamicInfo()
+      })
+    } else {
+      this.processDynamicInfo()
+    }
   }
 }
 </script>
