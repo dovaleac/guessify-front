@@ -27,6 +27,7 @@ export default {
   left: 0;
   background-position-y: 45%;
 }
+
 .form {
   background-color: aliceblue;
   width: 50vw;
@@ -38,12 +39,17 @@ export default {
   color: royalblue;
   border: 0.2vw solid royalblue;
 }
+
 .form.questions {
   width: 70vw;
   margin-left: 0;
   transform: none;
   height: 75vh;
   margin-top: 0;
+}
+
+.form.questions label {
+  text-align: left;
 }
 
 .scoreboard .form {
@@ -83,6 +89,15 @@ export default {
 
 .form input {
   border-color: royalblue;
+}
+
+.header {
+  font-weight: bold;
+  background-color: royalblue;
+  color: aliceblue;
+}
+.header div {
+  vertical-align: middle;
 }
 
 .button {

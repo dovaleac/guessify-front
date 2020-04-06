@@ -2,11 +2,15 @@
 <div class="wholeScreen">
   <div class="form questions">
     <b-container class = "d-flex flex-column">
-      <!-- <b-row class="header">
-        <b-col><label>Players: </label></b-col>
-      </b-row> -->
+      <b-row class="header">
+        <b-col>Number</b-col>
+        <b-col class="text-left ml-3" cols="9">Clue</b-col> 
+        <b-col>SOS!</b-col><!--Players requesting next clue -->
+      </b-row>
       <b-row v-for="(clue, index) in currentQuestion.clues" :key="index">
-        <b-col>Clue {{index + 1}}:</b-col><b-col>{{ index>currentQuestion.currentClue?'':clue }}</b-col> 
+        <b-col>{{index + 1}}</b-col>
+        <b-col class="text-left ml-3" cols="9">{{ index>currentQuestion.currentClue?'':clue }}</b-col> 
+        <b-col>{{ clueRequests[index] }}</b-col>
       </b-row>
       <b-row v-if="isMaster" class="mt-auto">
         <b-col></b-col>
@@ -39,9 +43,11 @@ export default {
     return {
       scoreboard: this.initialScoreboard(players),
       isMaster: player.playerRole === 'MASTER',
-      currentQuestion: null,
+      currentQuestion: {},
       gameStatus: 'STARTED',
-      allQuestionsInGame: null
+      allQuestionsInGame: [],
+      basicClueRequests: {},
+      clueRequests: {}
     }
   },
   components: {
@@ -54,6 +60,9 @@ export default {
     getDynamicInfo() {
       return axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`)
     },
+    getAllClueRequests(questionInGameId) {
+      return axios.get(`http://localhost:8080/question/${questionInGameId}/clues`)
+    },
     putRevealClue(questionInGameId, nextClue) {
       return axios.put(`http://localhost:8080/question/${questionInGameId}/clue?nextClue=${nextClue}`)
     },
@@ -65,6 +74,18 @@ export default {
         let currentQuestion = _.find(questions, function(o) { return o.id === currentQuestionInGame.questionId })
         currentQuestion.currentClue = currentQuestionInGame.currentClue
         currentQuestion.questionInGameId = currentQuestionInGame.id
+        let clueRequestsMap = this.basicClueRequests
+        this.getAllClueRequests(currentQuestionInGame.id)
+          .then(clueRequests => {
+            _.forEach(
+              _.mapValues(
+                _.groupBy(clueRequests.data, 'currentClue'), function(requestsOfClue) {
+                  return _.uniqBy(requestsOfClue, 'playerId').length
+              }), function(value, clue){
+                clueRequestsMap[clue] = value
+              })
+          this.clueRequests = clueRequestsMap          
+        })
         this.currentQuestion = currentQuestion
       })
     },
@@ -80,6 +101,13 @@ export default {
         "guessed": 0
         }
       })
+    },
+    calculateBasicClueRequests(cluesPerQuestion) {
+      let result = {}
+      _.range(cluesPerQuestion).forEach(element => {
+        result[element] = 0
+      });
+      return result
     }
   },
   beforeDestroy () {
@@ -91,9 +119,11 @@ export default {
         questions = staticInfo.data.questions
         gameConfig = staticInfo.data.gameConfiguration
         this.processDynamicInfo()
+        this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
       })
     } else {
       this.processDynamicInfo()
+      this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
     }
   }
 }

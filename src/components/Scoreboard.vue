@@ -4,7 +4,7 @@
       <b-row class="header">
         <b-col>Player</b-col>
         <b-col>Points</b-col>
-        <b-col>Questions guessed</b-col>
+        <b-col>Guessed</b-col>
       </b-row>
       <b-row v-for="player in scoreboard" :key="player.id">
         <b-col>{{ player.name }}</b-col>
