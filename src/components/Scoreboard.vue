@@ -1,5 +1,5 @@
 <template>
-  <div class="form">
+  <div class="form scoreboard">
     <b-container class ="d-flex flex-column">
       <b-row class="header">
         <b-col>Player</b-col>

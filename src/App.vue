@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-      
-         <router-view/>
+    <nav class="header"><div class="title">GUESSIFY</div></nav>
+    <router-view/>
     
   </div>
 </template>
@@ -28,6 +28,26 @@ export default {
   background-position-y: 45%;
 }
 
+nav.header {
+  background-color: royalblue;
+  height: calc(5vh + 0.4vw);
+  width: 100vw;
+  position: fixed;
+  right: 0;
+  top:0;
+  left:0;
+  z-index: 100;
+  border-bottom: 0.4vw solid aliceblue;
+  color: aliceblue;
+}
+
+nav.header .title {
+  font-weight: bold;
+  line-height: 5vh;
+  letter-spacing: 9px;
+  font-size: 1.8em;
+}
+
 .form {
   background-color: aliceblue;
   width: 50vw;
@@ -44,12 +64,16 @@ export default {
   width: 70vw;
   margin-left: 0;
   transform: none;
-  height: 75vh;
-  margin-top: 0;
+  height: calc(95vh - 0.4vw);
+  margin-top: calc(5vh + 0.4vw);
 }
 
 .form.questions label {
   text-align: left;
+}
+
+.form.questions .container {
+  padding-top: 0;
 }
 
 .scoreboard .form {
@@ -63,10 +87,18 @@ export default {
   right: 0;
 }
 
-.form .container{
+.form .container {
   padding-top: 5%;
   padding-bottom: 5%;
   height: 100%;
+}
+
+.form.scoreboard {
+  margin-top: calc(5vh + 0.4vw);
+}
+
+.form.scoreboard .container{
+  padding-top: 0;
 }
 
 .form .row {
