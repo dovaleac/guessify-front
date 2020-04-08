@@ -66,7 +66,7 @@ export default {
         "errorsAllowed": this.errorsAllowed        
       }));
 
-      const roomId = JSON.parse(localStorage.getItem("room")).id
+      const roomId = this.$route.query.roomId
       const playerId = JSON.parse(localStorage.getItem("player")).id
       const lang = localStorage.getItem("lang").toLowerCase()
       axios.post(`http://localhost:8080/game?roomId=${roomId}&masterId=${playerId}&lang=${lang}`, {
@@ -75,7 +75,7 @@ export default {
         "errorsAllowed": this.errorsAllowed
       }).then(gameResponse => { 
         localStorage.setItem("gameId", gameResponse.data.gameId)
-        this.$router.push('/questions');
+        this.$router.push(`/questions?roomId=${roomId}&gameId=${gameResponse.data.gameId}`);
       });
 
     }

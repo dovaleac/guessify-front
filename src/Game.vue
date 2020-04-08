@@ -34,7 +34,6 @@ const _ = require('lodash')
   //let room = JSON.parse(localStorage.getItem("room"))
   let players = JSON.parse(localStorage.getItem("players"))
   let player = JSON.parse(localStorage.getItem("player"))
-  let gameId = localStorage.getItem("gameId")
   //let defaultLang = localStorage.getItem("lang")
 
 export default {
@@ -47,7 +46,8 @@ export default {
       gameStatus: 'STARTED',
       allQuestionsInGame: [],
       basicClueRequests: {},
-      clueRequests: {}
+      clueRequests: {},
+      gameId: _.get(this, '$route.query.gameId')
     }
   },
   components: {
@@ -55,10 +55,10 @@ export default {
   },
   methods: {
     getStaticInfo() {
-      return axios.get(`http://localhost:8080/game/${gameId}/static-info`)
+      return axios.get(`http://localhost:8080/game/${this.gameId}/static-info`)
     },
     getDynamicInfo() {
-      return axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`)
+      return axios.get(`http://localhost:8080/game/${this.gameId}/dynamic-info`)
     },
     getAllClueRequests(questionInGameId) {
       return axios.get(`http://localhost:8080/question/${questionInGameId}/clues`)
@@ -114,7 +114,9 @@ export default {
     
   },
   created () {
+    this.game = _.get(this, '$route.query.gameId')
     if(!questions || !gameConfig) {
+      console.log("then")
       this.getStaticInfo().then(staticInfo => {
         questions = staticInfo.data.questions
         gameConfig = staticInfo.data.gameConfiguration
@@ -122,6 +124,7 @@ export default {
         this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
       })
     } else {
+      console.log("else")
       this.processDynamicInfo()
       this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
     }

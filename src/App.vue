@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <nav class="header"><div class="title">GUESSIFY</div></nav>
+    <nav class="header"><div class="title" v-on:click="home">GUESSIFY</div></nav>
     <router-view/>
     
   </div>
@@ -8,7 +8,19 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  methods: {
+    home() {
+      localStorage.removeItem('gameId')
+      localStorage.removeItem('questions')
+      localStorage.removeItem('room')
+      localStorage.removeItem('players')
+      //localStorage.removeItem('player')
+      localStorage.removeItem('gameConfig')
+      localStorage.removeItem('lang')
+      this.$router.push('/')
+    }
+  }
 }
 </script>
 
@@ -46,6 +58,10 @@ nav.header .title {
   line-height: 5vh;
   letter-spacing: 9px;
   font-size: 1.8em;
+  cursor: pointer;
+  width: 16vw;
+  float: right;
+  margin-right: 42vw;
 }
 
 .form {

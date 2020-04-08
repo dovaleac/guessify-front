@@ -20,9 +20,10 @@ export default {
   props: {
   },
   data: function () {
-    const gameId = localStorage.getItem("gameId")
+    const gameId = this.$route.query.gameId
     const cluesPerQuestion = JSON.parse(localStorage.getItem("gameConfig")).cluesPerQuestion
     return {
+      gameId: gameId,
       target: `http://localhost:8080/game/${gameId}/questions-file?cluesPerQuestion=${cluesPerQuestion}`
     }
   },
@@ -34,7 +35,8 @@ methods: {
     finishUpload(e) {
       if(e.target.status === 200) {
         localStorage.setItem("questions", e.target.response)
-        this.$router.push('/before-start')
+        const roomId = JSON.parse(localStorage.getItem("room")).id
+        this.$router.push(`/before-start?roomId=${roomId}&gameId=${this.gameId}`)
       }
     },
 

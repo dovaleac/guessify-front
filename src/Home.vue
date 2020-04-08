@@ -31,14 +31,17 @@ export default {
   name: 'Home',
   created() {
     this.lang = "ES"
+    const player = JSON.parse(localStorage.getItem('player'))
+    if(player) {
+      this.playerName = player.name
+    }
   },
-  props: {
-    playerName: {
-      type: String,
-      default: JSON.parse(localStorage.getItem('player')).name
-    },
-    lang: String,
-    roomPassword: String
+  data() {
+    return {
+      playerName: null,
+      lang: null,
+      roomPassword: null
+    }
   },
   methods: {
     createRoom() {
@@ -55,7 +58,7 @@ export default {
             "password": this.roomPassword
           }))
           localStorage.setItem('lang', this.lang)
-          this.$router.push('/config');
+          this.$router.push(`/config?roomId=${roomId}`);
         });
       });
 

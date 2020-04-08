@@ -19,28 +19,26 @@
 import axios from 'axios'
 const _ = require('lodash')
 
-  let room = JSON.parse(localStorage.getItem("room"))
-  let gameId = localStorage.getItem("gameId")
-
 export default {
   name: 'Game',
   data() {
     return {
       playersInterval: null,
-      players: []
+      players: [],
+      gameId: _.get(this, '$route.query.gameId')
     }
   },
   computed: {
   },
   methods: {
     async getCurrentPlayers() {
-      return await axios.get(`http://localhost:8080/room/${room.id}/players`)
+      return await axios.get(`http://localhost:8080/room/${this.$route.query.roomId}/players`)
     },
     updateStatus() {
       const self = this;   
       this.getCurrentPlayers().then(playersResponse => {
         localStorage.setItem("players", JSON.stringify(playersResponse.data))
-        axios.get(`http://localhost:8080/game/${gameId}/dynamic-info`).then(response => {
+        axios.get(`http://localhost:8080/game/${this.gameId}/dynamic-info`).then(response => {
           if(response.data.gameStatus != "CREATED") {
             this.$router.push('/game')
           }
@@ -66,14 +64,15 @@ export default {
     },
     start() {
       this.clearPlayersInterval()
-      axios.put(`http://localhost:8080/game/${gameId}/start?roomId=${room.id}`)
-      .then(() => this.$router.push('/game'))
+      axios.put(`http://localhost:8080/game/${this.gameId}/start?roomId=${this.$route.query.roomId}`)
+      .then(() => this.$router.push(`/game?roomId=${this.$route.query.roomId}&gameId=${this.gameId}`))
     }
   },
   beforeDestroy () {
     this.clearPlayersInterval()
   },
   created () {
+    console.log(this.$route)
     this.updateStatus()
     this.pollPlayers()
   }
