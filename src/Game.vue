@@ -7,14 +7,21 @@
         <b-col class="text-left ml-3" cols="9">Clue</b-col> 
         <b-col>SOS!</b-col><!--Players requesting next clue -->
       </b-row>
-      <b-row v-for="(clue, index) in currentQuestion.clues" :key="index">
+      <b-row v-for="(clue, index) in currentQuestion.clues" :key="clue.id">
         <b-col>{{index + 1}}</b-col>
-        <b-col class="text-left ml-3" cols="9">{{ index>currentQuestion.currentClue?'':clue }}</b-col> 
+        <b-col class="text-left ml-3" cols="9" v-bind:id="'clue' + index" v-bind:ref="'clue' + index" v-bind:class="{ 'hidden-clue': index>currentQuestion.currentClue }">{{ clue }}</b-col> 
         <b-col>{{ clueRequests[index] }}</b-col>
       </b-row>
+      <b-row>
+        <b-col id ="answer" ref="answer" class="answer text-center mt-5 hidden-clue" cols="12">{{ currentQuestion.answer }}</b-col> 
+      </b-row>
+      <b-row>
+        <b-col id ="funfacts" ref="funfacts" class="funfacts text-center mt-3 hidden-clue" cols="12">{{ currentQuestion.funFacts }}</b-col> 
+      </b-row>
       <b-row v-if="isMaster" class="mt-auto">
-        <b-col></b-col>
-        <b-col><button class="button" v-on:click="revealClue">Reveal clue</button></b-col>
+        <b-col><button class="button" id="revealClue" ref="revealClue" v-bind:class="{ inactive: isLastClue }" v-on:click="revealClue">Reveal clue</button></b-col>
+        <b-col><button class="button" id="revealAnswer" ref="revealAnswer" v-bind:class="{ inactive: isNotLastClue }" v-on:click="revealAnswer">Reveal answer</button></b-col>
+        <b-col><button class="button inactive" id="nextQuestion" ref="nextQuestion" v-on:click="nextQuestion">Next question</button></b-col>
       </b-row>
     </b-container>
   </div>
@@ -29,8 +36,6 @@ import axios from 'axios'
 import Scoreboard from './components/Scoreboard'
 const _ = require('lodash')
 
-  let questions = JSON.parse(localStorage.getItem("questions"))
-  let gameConfig = JSON.parse(localStorage.getItem("gameConfig"))
   //let room = JSON.parse(localStorage.getItem("room"))
   let players = JSON.parse(localStorage.getItem("players"))
   let player = JSON.parse(localStorage.getItem("player"))
@@ -47,7 +52,28 @@ export default {
       allQuestionsInGame: [],
       basicClueRequests: {},
       clueRequests: {},
-      gameId: _.get(this, '$route.query.gameId')
+      gameId: _.get(this, '$route.query.gameId'),
+      questions: JSON.parse(localStorage.getItem("questions")),
+      gameConfig: JSON.parse(localStorage.getItem("gameConfig"))
+    }
+  },
+  /* watch: {
+    currentQuestion: function (newQuestion, oldQuestion) {
+      
+    }
+  }, */
+  computed: {
+    isNotLastClue: function() {
+      if(this.currentQuestion && this.gameConfig) {
+        console.log(this.currentQuestion.currentClue)
+        console.log(this.gameConfig.cluesPerQuestion)
+        return this.currentQuestion.currentClue < this.gameConfig.cluesPerQuestion -1
+      } else {
+        return false
+      }
+    },
+    isLastClue: function() {
+      return !this.isNotLastClue
     }
   },
   components: {
@@ -66,14 +92,33 @@ export default {
     putRevealClue(questionInGameId, nextClue) {
       return axios.put(`http://localhost:8080/question/${questionInGameId}/clue?nextClue=${nextClue}`)
     },
+    putRevealAnswer(questionInGameId, nextQuestionInGameId) {
+      if(nextQuestionInGameId) {
+        return axios.put(`http://localhost:8080/question/${questionInGameId}/reveal?nextQuestionInGameId=${nextQuestionInGameId}&gameId=${this.gameId}`)
+      } else {
+        return axios.put(`http://localhost:8080/question/${questionInGameId}/reveal?gameId=${this.gameId}`)
+      }
+    },
     processDynamicInfo() {
+/*       _.forEach(this.questions, function(question) {
+        if (!_.has(question, 'currentClue')) {
+          question.currentClue = 0
+        }
+      }) */
       this.getDynamicInfo().then(dynamicInfo => {
         this.gameStatus = dynamicInfo.data.gameStatus
         this.allQuestionsInGame = dynamicInfo.data.questionsInGame
+        console.log(this.allQuestionsInGame)
+        const self = this
+        _.forEach(this.allQuestionsInGame, function(questionInGame) {
+          let currentQuestion = _.find(self.questions, function(o) { return o.id === questionInGame.questionId })
+          currentQuestion.currentClue = questionInGame.currentClue
+          currentQuestion.questionInGameId = questionInGame.id
+          //currentQuestion.funfacts = questionInGame.id
+        })
+          console.log(self.questions)
         const currentQuestionInGame = _.find(this.allQuestionsInGame, function(o) { return o.status === 'ACTIVE' })
-        let currentQuestion = _.find(questions, function(o) { return o.id === currentQuestionInGame.questionId })
-        currentQuestion.currentClue = currentQuestionInGame.currentClue
-        currentQuestion.questionInGameId = currentQuestionInGame.id
+        let currentQuestion = _.find(this.questions, function(o) { return o.id === currentQuestionInGame.questionId })
         let clueRequestsMap = this.basicClueRequests
         this.getAllClueRequests(currentQuestionInGame.id)
           .then(clueRequests => {
@@ -87,10 +132,59 @@ export default {
           this.clueRequests = clueRequestsMap          
         })
         this.currentQuestion = currentQuestion
+        console.log(this.currentQuestion)
+        console.log(this.calculateNextQuestionInGame())
       })
     },
     async revealClue() {
-      await this.putRevealClue(this.currentQuestion.questionInGameId, ++this.currentQuestion.currentClue)
+      this.putRevealClue(this.currentQuestion.questionInGameId, this.currentQuestion.currentClue + 1).then(() => {
+        console.log(this)
+        this.currentQuestion.currentClue = this.currentQuestion.currentClue + 1
+        this.$refs['clue' + this.currentQuestion.currentClue][0].classList.remove("hidden-clue")
+        console.log(this.currentQuestion.currentClue)
+        if(this.currentQuestion.currentClue + 1 == this.gameConfig.cluesPerQuestion) {
+          this.$refs['revealAnswer'].classList.remove("inactive")
+          this.$refs['revealClue'].classList.add("inactive")
+        }
+      })
+    },
+    revealAnswer() {
+      this.$refs['answer'].classList.remove('hidden-clue')
+      this.$refs['funfacts'].classList.remove('hidden-clue')
+      this.$refs['nextQuestion'].classList.remove('inactive')
+      this.$refs['revealAnswer'].classList.add("inactive")
+    },
+    async nextQuestion() {
+      const self = this
+      const keysToHide = _.filter(_.keys(this.$refs), function(ref) {
+        return ref.startsWith("clue") && ref != "clue0"
+      })
+      const elementsToHide = _.map(keysToHide, function(key) {
+        console.log(key)
+        console.log(self.$refs[key])
+        return self.$refs[key]
+      })
+      _.forEach(elementsToHide, function(clueDiv) {
+        clueDiv[0].classList.add('hidden-clue')
+      })
+      this.$refs['answer'].classList.add('hidden-clue')
+      this.$refs['funfacts'].classList.add('hidden-clue')
+      this.$refs['nextQuestion'].classList.add("inactive")
+      this.$refs['revealClue'].classList.remove("inactive")
+
+      const nextQuestion = this.calculateNextQuestionInGame()
+      this.putRevealAnswer(this.currentQuestion.questionInGameId, nextQuestion.questionInGameId).then(() => {
+        this.currentQuestion = nextQuestion
+      })
+    },
+    calculateNextQuestionInGame() {
+      const currentQuestionIndex = _.findIndex(this.questions, {'id': this.currentQuestion.id})
+      console.log(currentQuestionIndex)
+      if (currentQuestionIndex + 1 == _.size(this.questions)) {
+        return undefined
+      } else {
+        return this.questions[currentQuestionIndex + 1]
+      }
     },
     initialScoreboard(playersNames) {
       return _.map(playersNames, function(player) {
@@ -115,18 +209,18 @@ export default {
   },
   created () {
     this.game = _.get(this, '$route.query.gameId')
-    if(!questions || !gameConfig) {
-      console.log("then")
+    this.questions = JSON.parse(localStorage.getItem("questions"))
+    this.gameConfig = JSON.parse(localStorage.getItem("gameConfig"))
+    if(!this.questions || !this.gameConfig) {
       this.getStaticInfo().then(staticInfo => {
-        questions = staticInfo.data.questions
-        gameConfig = staticInfo.data.gameConfiguration
+        this.questions = staticInfo.data.questions
+        this.gameConfig = staticInfo.data.gameConfiguration
         this.processDynamicInfo()
-        this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
+        this.basicClueRequests = this.calculateBasicClueRequests(this.gameConfig.cluesPerQuestion)
       })
     } else {
-      console.log("else")
       this.processDynamicInfo()
-      this.basicClueRequests = this.calculateBasicClueRequests(gameConfig.cluesPerQuestion)
+      this.basicClueRequests = this.calculateBasicClueRequests(this.gameConfig.cluesPerQuestion)
     }
   }
 }

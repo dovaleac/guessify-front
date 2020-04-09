@@ -156,7 +156,7 @@ nav.header .title {
 } 
 .button.inactive {
   background-color: rgb(207, 219, 255);
-  color: rgb(44, 88, 223);
+  color: aliceblue;
   pointer-events: none;
 } 
 
@@ -178,4 +178,13 @@ nav.header .title {
 	cursor: pointer;
 }
 
+.hidden-clue {
+  opacity: 0;
+  user-select: none;
+}
+
+.answer {
+  font-size: 2em;
+  font-weight: bold;
+}
 </style>
