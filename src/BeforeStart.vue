@@ -7,7 +7,7 @@
       <b-row v-for="player in players" :key="player.id">
         <b-col>{{ player.name }}</b-col> 
       </b-row>
-      <b-row class="mt-auto">
+      <b-row v-if="isMaster" class="mt-auto">
         <b-col></b-col>
         <b-col><button class="button" v-on:click="start">Start game</button></b-col>
       </b-row>
@@ -19,12 +19,15 @@
 import axios from 'axios'
 const _ = require('lodash')
 
+let player = JSON.parse(localStorage.getItem("player"))
+
 export default {
   name: 'Game',
   data() {
     return {
       playersInterval: null,
       players: [],
+      isMaster: player.playerRole === 'MASTER',
       gameId: _.get(this, '$route.query.gameId')
     }
   },
@@ -40,7 +43,7 @@ export default {
         localStorage.setItem("players", JSON.stringify(playersResponse.data))
         axios.get(`http://localhost:8080/game/${this.gameId}/dynamic-info`).then(response => {
           if(response.data.gameStatus != "CREATED") {
-            this.$router.push('/game')
+            this.$router.push(`/game?roomId=${this.$route.query.roomId}&gameId=${this.gameId}`)
           }
         })
         self.players = self.getNamesOfContenders(playersResponse.data)
@@ -72,7 +75,6 @@ export default {
     this.clearPlayersInterval()
   },
   created () {
-    console.log(this.$route)
     this.updateStatus()
     this.pollPlayers()
   }

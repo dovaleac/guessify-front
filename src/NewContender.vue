@@ -48,30 +48,59 @@ export default {
       playerName: null,
       lang: null,
       haveToHideIdField: true,
-      roomUuid: null
+      roomUuid: null,
+      gameInterval: null,
+      roomId: null
     }
   },
   methods: {
-    createRoom() {
+    joinRoom() {
       axios
-      .post(`http://localhost:8080/room`)
+      .get(`http://localhost:8080/room?number=${this.roomUuid}`)
       .then(roomResponse => {
-        let roomId = roomResponse.data.roomId;
-        axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
-        .then(masterPlayerResponse => {
-          localStorage.setItem('player', JSON.stringify(masterPlayerResponse.data));
-          localStorage.setItem('room', JSON.stringify({
-            "id": roomId,
+        this.roomId = roomResponse.data.roomId;
+        localStorage.setItem('room', JSON.stringify({
+            "id": this.roomId,
             "number": roomResponse.data.number
           }))
-          localStorage.setItem('lang', this.lang)
-          this.$router.push(`/config?roomId=${roomId}`);
-        });
+        localStorage.setItem('lang', this.lang)
+        axios
+        .get(`http://localhost:8080/room/game?number=${this.roomUuid}`)
+        .then(gameResponse => {
+          axios.patch(`http://localhost:8080/room/${this.roomId}/player?name=${this.playerName}`)
+          .then(playerResponse => {
+            localStorage.setItem('player', JSON.stringify(playerResponse.data));
+            this.$router.push(`/before-start?roomId=${this.roomId}&gameId=${gameResponse.data.gameId}`);
+          })
+          localStorage.setItem('gameId', JSON.stringify(gameResponse.data.gameId));
+        })
+        .catch(() => {
+          this.pollGame()
+        })
       });
 
     },
-    joinRoom() {
-      alert("join room: " + this.playerName + this.lang + this.roomNumber);
+    clearGameInterval() {
+      if(this.gameInterval != null) {
+        clearInterval(this.gameInterval)
+      }
+    },
+    pollGame () {       
+      this.gameInterval = setInterval(() => this.updateStatusForGame(), 3000)
+    },
+    updateStatusForGame() {
+      const self = this
+      axios
+      .get(`http://localhost:8080/room/game?number=${this.roomUuid}`)
+      .then(gameResponse => {
+        self.clearGameInterval()
+        axios.patch(`http://localhost:8080/room/${self.roomId}/player?name=${self.playerName}`)
+        .then(masterPlayerResponse => {
+          localStorage.setItem('player', JSON.stringify(masterPlayerResponse.data));
+            this.$router.push(`/before-start?roomId=${self.roomId}&gameId=${gameResponse.data.gameId}`);
+          })
+          localStorage.setItem('gameId', JSON.stringify(gameResponse.data.gameId));
+      })
     }
   }
 }
