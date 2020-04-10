@@ -2,20 +2,9 @@
   <div class="form">
     <b-container class ="d-flex flex-column">
       <b-row>
-        <b-col><label for="player-name">Name: </label></b-col>
-        <b-col><input id="player-name" v-model="playerName" placeholder="Player name"></b-col>
+        Welcome to Guessify! Let's play guesses! Do you want to create a room to play or join an already created one? Give me a clue!
       </b-row>
-      <b-row>
-        <b-col><label for="lang">Language: </label></b-col>
-        <b-col><select v-model="lang" id="lang">
-          <option selected="selected">ES</option>
-          <option>EN</option>
-        </select></b-col>
-      </b-row>
-      <b-row>
-        <b-col><label for="room-password">Password: </label></b-col>
-        <b-col><input id="room-password" v-model="roomPassword" placeholder="Type a password for the room"></b-col>
-      </b-row>
+      
       <b-row class="mt-auto">
         <b-col><button class="button" v-on:click="createRoom">Create</button></b-col>
         <b-col><button class="button" v-on:click="joinRoom">Join</button></b-col>
@@ -25,7 +14,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 
 export default {
   name: 'Home',
@@ -45,26 +33,10 @@ export default {
   },
   methods: {
     createRoom() {
-      axios
-      .post(`http://localhost:8080/room?password=${this.roomPassword}`)
-      .then(roomResponse => {
-        let roomId = roomResponse.data.roomId;
-        axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
-        .then(masterPlayerResponse => {
-          localStorage.setItem('player', JSON.stringify(masterPlayerResponse.data));
-          localStorage.setItem('room', JSON.stringify({
-            "id": roomId,
-            "number": roomResponse.data.number,
-            "password": this.roomPassword
-          }))
-          localStorage.setItem('lang', this.lang)
-          this.$router.push(`/config?roomId=${roomId}`);
-        });
-      });
-
+      this.$router.push('/newRoom')
     },
     joinRoom() {
-      alert("join room: " + this.playerName + this.lang + this.roomNumber + this.roomPassword);
+      this.$router.push('/newContender')
     }
   }
 }

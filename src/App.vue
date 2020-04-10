@@ -2,13 +2,23 @@
   <div id="app">
     <nav class="header"><div class="title" v-on:click="home">GUESSIFY</div></nav>
     <router-view/>
-    
+    <div class="big-copy-link" v-bind:class="{disappeared: dontShowCopyLinkInRoute}">Copy link</div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      dontShowCopyLinkInRoute: this.calculateLinkShowing()
+    }
+  },
+  watch:{
+    $route () {
+      this.dontShowCopyLinkInRoute = this.calculateLinkShowing()
+    }
+  },
   methods: {
     home() {
       localStorage.removeItem('gameId')
@@ -19,6 +29,9 @@ export default {
       localStorage.removeItem('gameConfig')
       localStorage.removeItem('lang')
       this.$router.push('/')
+    },
+    calculateLinkShowing() {
+      return ['home', 'newRoom', 'newContender', 'game'].includes(this.$route.name)
     }
   }
 }
@@ -38,6 +51,32 @@ export default {
   background-size: 8vw;
   left: 0;
   background-position-y: 45%;
+}
+
+.disappeared {
+  display: none;
+}
+
+.big-copy-link {
+  background-color: aliceblue;
+  height: 10vh;
+  width: 34vw;
+  position: fixed;
+  right: 33vw;
+  bottom: 5vw;
+  left: 33vw;
+  z-index: 100;
+  color: royalblue;
+  font-size: 2.5em;
+  font-weight: bold;
+  line-height: 10vh;
+  border: 0.2vw solid royalblue;
+  cursor: pointer;
+}
+
+.big-copy-link:hover {
+  background-color: royalblue;
+  color: aliceblue;
 }
 
 nav.header {

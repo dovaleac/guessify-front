@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '../Home.vue'
+import NewRoom from '../NewRoom.vue'
+import NewContender from '../NewContender.vue'
 import ConfigGame from '../ConfigGame.vue'
 import ConfigQuestions from '../ConfigQuestions.vue'
 import Game from '../Game.vue'
@@ -15,6 +17,16 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/newRoom',
+      name: 'newRoom',
+      component: NewRoom
+    },
+    {
+      path: '/newContender',
+      name: 'newContender',
+      component: NewContender
     },
     {
       path: '/config',
