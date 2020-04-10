@@ -12,10 +12,10 @@
           <option>EN</option>
         </select></b-col>
       </b-row>
-      <!-- <b-row>
-        <b-col><label for="room-password">Password: </label></b-col>
-        <b-col><input id="room-password" v-model="roomPassword" placeholder="Type a password for the room"></b-col>
-      </b-row> -->
+      <b-row v-bind:class="{ disappeared: haveToHideIdField }">
+        <b-col><label for="room-password">Room ID: </label></b-col>
+        <b-col><input id="room-password" v-model="roomUuid"></b-col>
+      </b-row>
       <b-row class="mt-auto">
         <b-col><button class="button" v-on:click="joinRoom">Join</button></b-col>
       </b-row>
@@ -34,11 +34,21 @@ export default {
     if(player) {
       this.playerName = player.name
     }
+    const roomIdFromQuery = this.$route.query.roomId
+    if(roomIdFromQuery) {
+      this.haveToHideIdField = true
+      this.roomUuid = roomIdFromQuery
+    } else {
+      this.haveToHideIdField = false
+    }
+
   },
   data() {
     return {
       playerName: null,
-      lang: null
+      lang: null,
+      haveToHideIdField: true,
+      roomUuid: null
     }
   },
   methods: {

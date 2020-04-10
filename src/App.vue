@@ -54,7 +54,7 @@ export default {
 }
 
 .disappeared {
-  display: none;
+  display: none !important;
 }
 
 .big-copy-link {
