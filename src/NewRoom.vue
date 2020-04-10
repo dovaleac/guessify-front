@@ -42,7 +42,7 @@ export default {
   methods: {
     createRoom() {
       axios
-      .post(`http://localhost:8080/room?password=${this.roomPassword}`)
+      .post(`http://localhost:8080/room`)
       .then(roomResponse => {
         let roomId = roomResponse.data.roomId;
         axios.patch(`http://localhost:8080/room/${roomId}/master?name=${this.playerName}`)
@@ -50,8 +50,7 @@ export default {
           localStorage.setItem('player', JSON.stringify(masterPlayerResponse.data));
           localStorage.setItem('room', JSON.stringify({
             "id": roomId,
-            "number": roomResponse.data.number,
-            "password": this.roomPassword
+            "uuid": roomResponse.data.number
           }))
           localStorage.setItem('lang', this.lang)
           this.$router.push(`/config?roomId=${roomId}`);

@@ -2,11 +2,15 @@
   <div id="app">
     <nav class="header"><div class="title" v-on:click="home">GUESSIFY</div></nav>
     <router-view/>
-    <div class="big-copy-link" v-bind:class="{disappeared: dontShowCopyLinkInRoute}">Copy link</div>
+    <div class="big-copy-link" v-bind:class="{disappeared: dontShowCopyLinkInRoute}" v-on:click="copyLink">Copy link to room</div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
+import VueClipboard from 'vue-clipboard2'
+ 
+Vue.use(VueClipboard)
 export default {
   name: 'App',
   data() {
@@ -25,13 +29,18 @@ export default {
       localStorage.removeItem('questions')
       localStorage.removeItem('room')
       localStorage.removeItem('players')
-      //localStorage.removeItem('player')
+      localStorage.removeItem('player')
       localStorage.removeItem('gameConfig')
       localStorage.removeItem('lang')
       this.$router.push('/')
     },
     calculateLinkShowing() {
       return ['home', 'newRoom', 'newContender', 'game'].includes(this.$route.name)
+    },
+    async copyLink() {
+      const roomUuid = JSON.parse(localStorage.getItem("room")).uuid
+      const joinRoomUrl = "http://localhost:8081/#/newContender?roomId=" + roomUuid
+      await this.$copyText(joinRoomUrl)
     }
   }
 }
@@ -58,7 +67,7 @@ export default {
 }
 
 .big-copy-link {
-  background-color: aliceblue;
+  background-color: royalblue;
   height: 10vh;
   width: 34vw;
   position: fixed;
@@ -66,7 +75,7 @@ export default {
   bottom: 5vw;
   left: 33vw;
   z-index: 100;
-  color: royalblue;
+  color: aliceblue;
   font-size: 2.5em;
   font-weight: bold;
   line-height: 10vh;
@@ -75,8 +84,8 @@ export default {
 }
 
 .big-copy-link:hover {
-  background-color: royalblue;
-  color: aliceblue;
+    background-color: rgb(207, 219, 255);
+  color: rgb(44, 88, 223);
 }
 
 nav.header {
