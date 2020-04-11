@@ -7,7 +7,7 @@
         <b-col class="text-left ml-3" cols="9">Clue</b-col> 
         <b-col>SOS!</b-col><!--Players requesting next clue -->
       </b-row>
-      <b-row v-for="(clue, index) in currentQuestion.clues" :key="clue.id">
+      <b-row class="mt-1" v-for="(clue, index) in currentQuestion.clues" :key="clue.id">
         <b-col>{{index + 1}}</b-col>
         <b-col class="text-left ml-3" cols="9" v-bind:id="'clue' + index" v-bind:ref="'clue' + index" v-bind:class="{ 'hidden-clue': index>currentQuestion.currentClue }">{{ clue }}</b-col> 
         <b-col>{{ clueRequests[index] }}</b-col>
@@ -33,7 +33,7 @@
     <scoreboard v-bind:scoreboard="scoreboard"/>
   </div>
   <div class="answerboard">
-    <answerboard v-bind:answerboard="answerboard"/>
+    <answerboard v-bind:answerboard="answerboard" v-bind:isMaster="isMaster"/>
   </div>
 </div>
 </template>

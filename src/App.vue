@@ -249,4 +249,8 @@ nav.header .title {
   font-size: 2em;
   font-weight: bold;
 }
+
+.button.big-button {
+  min-width: 25px;
+}
 </style>
