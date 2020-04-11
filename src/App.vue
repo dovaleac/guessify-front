@@ -150,6 +150,16 @@ nav.header .title {
   top: 0;
   right: 0;
 }
+.answerboard .form {
+  font-size: 1.2em;
+  width: 30vw;
+  height: 50vh;
+  transform: none;
+  margin-top: 0;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
 
 .form .container {
   padding-top: 5%;
@@ -162,6 +172,10 @@ nav.header .title {
 }
 
 .form.scoreboard .container{
+  padding-top: 0;
+}
+
+.form.answerboard .container{
   padding-top: 0;
 }
 

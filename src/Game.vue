@@ -23,10 +23,17 @@
         <b-col><button class="button" id="revealAnswer" ref="revealAnswer" v-bind:class="{ inactive: isNotLastClue }" v-on:click="revealAnswer">Reveal answer</button></b-col>
         <b-col><button class="button inactive" id="nextQuestion" ref="nextQuestion" v-on:click="nextQuestion">Next question</button></b-col>
       </b-row>
+      <b-row v-else class="mt-auto">
+        <b-col><input id="guess-text-box" ref="guess-text-box" v-model="guess"></b-col>
+        <b-col><button class="button" id="makeGuess" ref="makeGuess" v-bind:class="{ inactive: cantGuessAnymore }" v-on:click="makeGuess">Make a guess!</button></b-col>
+      </b-row>
     </b-container>
   </div>
   <div class="scoreboard">
     <scoreboard v-bind:scoreboard="scoreboard"/>
+  </div>
+  <div class="answerboard">
+    <answerboard v-bind:answerboard="answerboard"/>
   </div>
 </div>
 </template>
@@ -34,6 +41,7 @@
 <script>
 import axios from 'axios'
 import Scoreboard from './components/Scoreboard'
+import Answerboard from './components/Answerboard'
 const _ = require('lodash')
 
   //let room = JSON.parse(localStorage.getItem("room"))
@@ -44,6 +52,12 @@ const _ = require('lodash')
 export default {
   name: 'Game',
   data() {
+    let storedGuessTries = localStorage.getItem("guessTries")
+    if (storedGuessTries) {
+      storedGuessTries = parseInt(storedGuessTries)
+    } else {
+      storedGuessTries = 0
+    }
     return {
       scoreboard: this.initialScoreboard(players),
       isMaster: player.playerRole === 'MASTER',
@@ -54,14 +68,20 @@ export default {
       clueRequests: {},
       gameId: _.get(this, '$route.query.gameId'),
       questions: JSON.parse(localStorage.getItem("questions")),
-      gameConfig: JSON.parse(localStorage.getItem("gameConfig"))
+      gameConfig: JSON.parse(localStorage.getItem("gameConfig")),
+      guess: "",
+      guessTries: storedGuessTries,
+      cantGuessAnymore: null,
+      answerboard: [],
+      answersInterval: null
     }
   },
-  /* watch: {
-    currentQuestion: function (newQuestion, oldQuestion) {
-      
+  watch: {
+    guessTries: function (newGuessTries) {
+      this.cantGuessAnymore = newGuessTries > this.gameConfig.errorsAllowedPerQuestion
+      localStorage.setItem("guessTries", newGuessTries)
     }
-  }, */
+  },
   computed: {
     isNotLastClue: function() {
       if(this.currentQuestion && this.gameConfig) {
@@ -77,7 +97,8 @@ export default {
     }
   },
   components: {
-    'scoreboard': Scoreboard
+    'scoreboard': Scoreboard,
+    'answerboard': Answerboard
   },
   methods: {
     getStaticInfo() {
@@ -89,8 +110,14 @@ export default {
     getAllClueRequests(questionInGameId) {
       return axios.get(`http://localhost:8080/question/${questionInGameId}/clues`)
     },
+    getAllAnswers(questionInGameId) {
+      return axios.get(`http://localhost:8080/question/${questionInGameId}/answers`)
+    },
     putRevealClue(questionInGameId, nextClue) {
       return axios.put(`http://localhost:8080/question/${questionInGameId}/clue?nextClue=${nextClue}`)
+    },
+    putMakeGuess(questionInGameId, currentClue, playerId, answer) {
+      return axios.put(`http://localhost:8080/question/${questionInGameId}/answer?playerId=${playerId}&currentClue=${currentClue}&answer=${answer}`)
     },
     putRevealAnswer(questionInGameId, nextQuestionInGameId) {
       if(nextQuestionInGameId) {
@@ -108,7 +135,6 @@ export default {
       this.getDynamicInfo().then(dynamicInfo => {
         this.gameStatus = dynamicInfo.data.gameStatus
         this.allQuestionsInGame = dynamicInfo.data.questionsInGame
-        console.log(this.allQuestionsInGame)
         const self = this
         _.forEach(this.allQuestionsInGame, function(questionInGame) {
           let currentQuestion = _.find(self.questions, function(o) { return o.id === questionInGame.questionId })
@@ -116,7 +142,6 @@ export default {
           currentQuestion.questionInGameId = questionInGame.id
           //currentQuestion.funfacts = questionInGame.id
         })
-          console.log(self.questions)
         const currentQuestionInGame = _.find(this.allQuestionsInGame, function(o) { return o.status === 'ACTIVE' })
         let currentQuestion = _.find(this.questions, function(o) { return o.id === currentQuestionInGame.questionId })
         let clueRequestsMap = this.basicClueRequests
@@ -129,11 +154,12 @@ export default {
               }), function(value, clue){
                 clueRequestsMap[clue] = value
               })
-          this.clueRequests = clueRequestsMap          
+          this.clueRequests = clueRequestsMap
+          this.focusOnGuessTextBox()          
         })
         this.currentQuestion = currentQuestion
-        console.log(this.currentQuestion)
-        console.log(this.calculateNextQuestionInGame())
+        this.answersInterval = setInterval(() => this.updateAnswers(), 3000)
+        this.updateAnswers()
       })
     },
     async revealClue() {
@@ -202,10 +228,32 @@ export default {
         result[element] = 0
       });
       return result
+    },
+    focusOnGuessTextBox() {
+      if (!this.isMaster) {
+        this.$refs['guess-text-box'].focus()
+      }
+    },
+    makeGuess() {
+      //questionInGameId, currentClue, playerId, answer
+      
+      this.putMakeGuess(this.currentQuestion.questionInGameId, this.currentQuestion.currentClue, player.id, this.guess).then(() => {
+        this.guessTries++
+        this.guess = ""
+        this.focusOnGuessTextBox()
+      })
+    },
+    updateAnswers() {
+      this.getAllAnswers(this.currentQuestion.questionInGameId).then(answersResponse => {
+        this.answerboard = _.map(answersResponse.data, function(answer){
+          answer.playerName =_.find(players, {'id': answer.playerId}).name
+          return answer
+        })
+      })
     }
   },
   beforeDestroy () {
-    
+    clearInterval(this.answersInterval)
   },
   created () {
     this.game = _.get(this, '$route.query.gameId')
@@ -217,10 +265,12 @@ export default {
         this.gameConfig = staticInfo.data.gameConfiguration
         this.processDynamicInfo()
         this.basicClueRequests = this.calculateBasicClueRequests(this.gameConfig.cluesPerQuestion)
+        this.cantGuessAnymore = this.guessTries > this.gameConfig.errorsAllowedPerQuestion
       })
     } else {
       this.processDynamicInfo()
       this.basicClueRequests = this.calculateBasicClueRequests(this.gameConfig.cluesPerQuestion)
+      this.cantGuessAnymore = this.guessTries > this.gameConfig.errorsAllowedPerQuestion
     }
   }
 }
